@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "stdint.h": "c",
+        "atomic.h": "c",
+        "interrupt.h": "c",
+        "pgmspace.h": "c",
+        "usart.h": "c",
+        "delay.h": "c",
+        "delay_basic.h": "c"
+    }
+}

@@ -25,9 +25,9 @@
 
 // ###################################### Servo Config #########################################
 
-#define SERVO_RPM (float) 3000
+#define SERVO_RPM (float) 3000                  // servo nominal rpm
 #define SERVO_SPR (float) 10000                 // servo steps per rotation
-#define SERVO_GEAR_RATIO (float) 3              // servo gear ratio
+#define SERVO_GEAR_RATIO (float) 3              // servo gear ratio - set in the servo driver
 #define ACTUATOR_MAX_LENGTH (float) 696         // fully extended length in mm
 #define SCREW_LEAD (uint8_t) 10                 // screw lead in mm (lead = (pitch / number of screws))
 #define INPUT_RESOLUTION  (uint8_t) 10          // input resolution in bits (max 16)

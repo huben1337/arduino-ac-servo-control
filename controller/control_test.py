@@ -8,9 +8,9 @@ import serial
 ACK = True
 LOG_ANY_RECEIVED = True
 TEST_MODE = True
-TEST_LOOP = False
+TEST_LOOP = True
 MAX_VALUE = 1000
-DELAY = 0.01 #slow down loop time
+DELAY = 0 #0.05 #slow down loop time
 
 ACTUATOR_MAX_LENGTH = 696
 MMF_PRECISION = 10
@@ -37,7 +37,7 @@ last_pos = 0
 ser = serial.Serial('COM3', 250000, timeout = 1)
 
 hit_lower_limit = True
-v = 0
+v = -1
 
 def get_test_data():
     global hit_lower_limit
@@ -45,12 +45,14 @@ def get_test_data():
     if hit_lower_limit:
         v += 1
         if v > MAX_VALUE:
-            hit_lower_limit = 0
+            hit_lower_limit = False
             sleep(1)
     else:
         v -= 1
         if v < 0:
             v = 0
+            if not TEST_LOOP:
+                exit(0)
             hit_lower_limit = TEST_LOOP
             sleep(1)
     return v.to_bytes(2, "big")
@@ -65,6 +67,8 @@ while True:
     else :
         print('ERROR - INVALID START BYTE')
         exit(1)
+        
+sleep(5)
             
 latest_timestamp =  perf_counter()
 while True:

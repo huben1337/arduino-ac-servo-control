@@ -3,8 +3,14 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-volatile __uint24 currentStepPosition = 0; // __uint24
-volatile __uint24 targetStepPosition = 0; // __uint24
+// volatile __uint24 currentStepPosition = 0; // __uint24
+// volatile __uint24 targetStepPosition = 0; // __uint24
+
+asm (
+    "ldi r28, 0\n\t"
+    "ldi r29, 0\n\t"
+    "ldi r30, 0\n\t"
+);
 
 
 int main (void) {
@@ -36,7 +42,42 @@ int main (void) {
     while (!(UCSR0A & (1 << UDRE0)));
     UDR0 = 'C';
 
-    while (true) {
+    asm volatile (
+        "ldi r31, 82\n\t"                     // 'R'
+        "ldi r20, 226\n\t"
+        "L1:\n\t"
+            "lds r15, %[ucsr0a]\n\t"
+            "sbrs r15, 7\n\t"
+            "rjmp L1\n\t"                    // while (!(UCSR0A & (1 << RXC0)));
+            "lds r19, %[udr0]\n\t"                   // firstByte
+        
+        "L2:\n\t"
+            "lds r15, %[ucsr0a]\n\t"
+            "sbrs r15, 7\n\t"
+            "rjmp L2\n\t"                    // while (!(UCSR0A & (1 << RXC0)));
+            "lds r18, %[udr0]\n\t"
+            "clr r24\n\t"
+            "mul r18, r20\n\t"
+            "mov r22, r0\n\t"
+            "mov r23, r1\n\t"
+            "mul r19, r20\n\t"
+            "add r23, r0\n\t"
+            "adc r24, r1\n\t"
+            "mov r12, r22\n\t"
+            "mov r13, r23\n\t"
+            "mov r14, r24\n\t"
+
+        "L3:\n\t"
+            "lds r15, %[ucsr0a]\n\t"
+            "sbrs r15, 5\n\t"
+            "rjmp L3\n\t"                    // while (!(UCSR0A & (1 << UDRE0)));
+            "sts %[udr0], r31\n\t"
+            "rjmp L1\n\t"
+        :
+        : [ucsr0a] "i" (_SFR_ADDR(UCSR0A)), [udr0] "i" (_SFR_ADDR(UDR0)), [step_factor] "i" (STEP_FACTOR)
+    );
+
+    /* while (true) {
         while (!(UCSR0A & (1 << RXC0)));
         uint8_t firstByte = UDR0;
         while (!(UCSR0A & (1 << RXC0)));
@@ -45,7 +86,7 @@ int main (void) {
             while (!(UCSR0A & (1 << UDRE0)));
             UDR0 = 'R';
         #endif
-    }
+    } */
 }
 
 ISR(TIMER2_COMPA_vect) {
@@ -58,13 +99,13 @@ ISR(TIMER2_COMPA_vect) {
 
 ISR(TIMER2_COMPB_vect) {
 
-    asm volatile (
+    /*asm volatile (
         "cp %A[currentStepPosition], %A[targetStepPosition]\n\t"
         "cpc %B[currentStepPosition], %B[targetStepPosition]\n\t"
         "cpc %C[currentStepPosition], %C[targetStepPosition]\n\t"
         "breq end\n\t"
         "brlo up\n\t"
-
+        
         "sbi %[port], %[servor_dir_pin]\n\t"
         "sbi %[port], %[servo_pulse_pin]\n\t"
         "sbiw %[currentStepPosition], 1\n\t"
@@ -80,6 +121,35 @@ ISR(TIMER2_COMPB_vect) {
         "end:\n\t"
         : [currentStepPosition] "+r" (currentStepPosition)
         : [port] "I" (_SFR_IO_ADDR(SERVO_STEP_CONTROL_PORT)), [servo_pulse_pin] "I" (SERVO_PULSE_PIN), [servor_dir_pin] "I" (SERVO_DIR_PIN), [targetStepPosition] "r" (targetStepPosition)
+    );*/
+
+    asm volatile (
+        "push r0\n\t"
+        "push r1\n\t"
+        "cp r28, r12\n\t"
+        "cpc r29, r13\n\t"
+        "cpc r30, r14\n\t"
+        "breq end\n\t"
+        "brlo up\n\t"
+        
+        "sbi %[port], %[servor_dir_pin]\n\t"
+        "sbi %[port], %[servo_pulse_pin]\n\t"
+        "sbiw r28, 1\n\t"
+        "sbc r30, __zero_reg__\n\t"
+        "rjmp end\n\t"
+        
+        "up:\n\t"
+            "cbi %[port], %[servor_dir_pin]\n\t"
+            "sbi %[port], %[servo_pulse_pin]\n\t"
+            "adiw r28, 1\n\t"
+            "adc r30, __zero_reg__\n\t"
+                
+        "end:\n\t"
+        "pop r1\n\t"
+        "pop r0\n\t"
+        : 
+        : [port] "I" (_SFR_IO_ADDR(SERVO_STEP_CONTROL_PORT)), [servo_pulse_pin] "I" (SERVO_PULSE_PIN), [servor_dir_pin] "I" (SERVO_DIR_PIN)
     );
+
 
 }

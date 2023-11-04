@@ -33,6 +33,6 @@
 #define INPUT_RESOLUTION  (uint8_t) 10          // input resolution in bits (max 16)
 
 // calculated values
-typedef uint8_t factor_t;                       // type of factor (float is more precise but slower)
+typedef uint8_t factor_t;                       // type of factor (float is more precise but slower) !!! mus be less then 255 !!!
 #define STEP_FACTOR (factor_t) (( (SERVO_SPR / SERVO_GEAR_RATIO) * (ACTUATOR_MAX_LENGTH / SCREW_LEAD) ) / (1 << INPUT_RESOLUTION))
 #define SERVO_PULSE_PERIOD (uint8_t) (F_CPU / ( (SERVO_RPM / 60) * (SERVO_SPR / SERVO_GEAR_RATIO) ))

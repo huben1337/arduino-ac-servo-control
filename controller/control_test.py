@@ -16,20 +16,6 @@ ACTUATOR_MAX_LENGTH = 696
 MMF_PRECISION = 10
 MMF_VALUE_RANGE = (1 << MMF_PRECISION)
 COMP_FACTOR = ACTUATOR_MAX_LENGTH / MMF_VALUE_RANGE
-
-# class Actuator:
-#     def __init__(self, name, range):
-#         self.name = name
-#         self.range = range
-#         self.factor = range / MMF_VALUE_RANGE
-
-#     current_value = 0
-#     target_value = 0
-
-# actuators = []
-
-# for i in range(6):
-#     actuators.append(Actuator(f"Axis {i+1}", ACTUATOR_MAX_LENGTH))
     
 mmf_file = mmap.mmap(-1, 12, "OUTPUT_MMF")
 latest_done = latest_time = perf_counter()
@@ -57,7 +43,6 @@ def get_test_data():
             sleep(1)
     return v.to_bytes(2, "big")
 
-get_test_data()
 while True:
     if (not ser.readable() or ser.in_waiting == 0):
         continue
@@ -107,3 +92,4 @@ while True:
         else:
             print('ERROR - INVALID ACKNOWLEDGEMENT BYTE')
             exit(1)
+

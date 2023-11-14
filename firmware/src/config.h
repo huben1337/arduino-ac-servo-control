@@ -1,4 +1,3 @@
-#include <stdint.h>
 // ####################################### Serial Config #######################################
 
 #define UART_BAUDRATE 250000    // baudrate
@@ -35,4 +34,4 @@
 // calculated values
 typedef uint8_t factor_t;                       // type of factor (float is more precise but slower) !!! mus be less then 255 !!!
 #define STEP_FACTOR (factor_t) (( (SERVO_SPR / SERVO_GEAR_RATIO) * (ACTUATOR_MAX_LENGTH / SCREW_LEAD) ) / (1 << INPUT_RESOLUTION))
-#define SERVO_PULSE_PERIOD (uint8_t) (F_CPU / ( (SERVO_RPM / 60) * (SERVO_SPR / SERVO_GEAR_RATIO) ))
+#define SERVO_PULSE_PERIOD (uint8_t) 60// (F_CPU / ( (SERVO_RPM / 60) * (SERVO_SPR / SERVO_GEAR_RATIO) ))
